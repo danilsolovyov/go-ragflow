@@ -6,9 +6,7 @@ import (
 )
 
 const (
-	defaultScheme  = "http"
-	defaultHost    = "localhost:8080"
-	defaultTimeout = 30 * time.Second
+	ClientDefaultTimeout = 30 * time.Second
 )
 
 type ClientOptions struct {
@@ -16,6 +14,7 @@ type ClientOptions struct {
 	Host      string
 	Transport http.RoundTripper
 	Timeout   time.Duration
+	APIKey    string
 }
 
 func DefaultClientOptions() *ClientOptions {
@@ -23,22 +22,50 @@ func DefaultClientOptions() *ClientOptions {
 		Scheme:    "http",
 		Host:      "localhost:8080",
 		Transport: http.DefaultTransport,
-		Timeout:   30 * time.Second,
+		Timeout:   ClientDefaultTimeout,
 	}
 }
 
-func (co *ClientOptions) SetScheme(scheme string) {
-	co.Scheme = scheme
+func (o *ClientOptions) Merge(other *ClientOptions) *ClientOptions {
+	if other == nil {
+		return o
+	}
+
+	if other.Scheme != "" {
+		o.Scheme = other.Scheme
+	}
+	if other.Host != "" {
+		o.Host = other.Host
+	}
+	if other.Transport != nil {
+		o.Transport = other.Transport
+	}
+	if other.Timeout > 0 {
+		o.Timeout = other.Timeout
+	}
+	if other.APIKey != "" {
+		o.APIKey = other.APIKey
+	}
+
+	return o
 }
 
-func (co *ClientOptions) SetHost(host string) {
-	co.Host = host
+func (o *ClientOptions) SetScheme(scheme string) {
+	o.Scheme = scheme
 }
 
-func (co *ClientOptions) SetTransport(transport http.RoundTripper) {
-	co.Transport = transport
+func (o *ClientOptions) SetHost(host string) {
+	o.Host = host
 }
 
-func (co *ClientOptions) SetTimeout(timeout time.Duration) {
-	co.Timeout = timeout
+func (o *ClientOptions) SetTransport(transport http.RoundTripper) {
+	o.Transport = transport
+}
+
+func (o *ClientOptions) SetTimeout(timeout time.Duration) {
+	o.Timeout = timeout
+}
+
+func (o *ClientOptions) SetAPIKey(apiKey string) {
+	o.APIKey = apiKey
 }

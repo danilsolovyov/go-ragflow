@@ -14,7 +14,6 @@ import (
 )
 
 const (
-	defaultTimeout = 10 * time.Second
 	apiPath        = "/api/v1"
 )
 
@@ -25,33 +24,34 @@ type Client struct {
 	timeout    time.Duration
 }
 
+// authTransport is a RoundTripper that adds the API key to the request.
 type authTransport struct {
 	defaultRoundTripper http.RoundTripper
 	apiKey              string
 }
 
+// RoundTrip implements the RoundTripper interface.
 func (a *authTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req.Header.Set("Authorization", "Bearer "+a.apiKey)
 	req.Header.Set("Content-Type", "application/json")
 	return a.defaultRoundTripper.RoundTrip(req)
 }
 
-func NewClient(scheme, host, apiKey string, opts *options.ClientOptions) *Client {
-	if opts == nil {
-		opts = options.DefaultClientOptions()
-	}
+// NewClient creates a new RagFlow client.
+func NewClient(opts *options.ClientOptions) *Client {
+	opts = options.DefaultClientOptions().Merge(opts)
 
 	client := &Client{
 		httpClient: &http.Client{
-			Transport: http.DefaultTransport,
-			Timeout:   defaultTimeout,
+			Transport: opts.Transport,
+			Timeout:   opts.Timeout,
 		},
-		scheme: scheme,
-		host:   host,
+		scheme: opts.Scheme,
+		host:   opts.Host,
 	}
 	authTransport := &authTransport{
 		defaultRoundTripper: client.httpClient.Transport,
-		apiKey:              apiKey,
+		apiKey:              opts.APIKey,
 	}
 
 	client.httpClient.Transport = authTransport
@@ -72,6 +72,7 @@ func (c *Client) do(ctx context.Context, method, path string, data any, params .
 	var reqBody io.Reader
 	var err error
 
+	// TODO: add support for files multipart/form-data
 	body := parameters.CreateBody(params...)
 
 	if body != nil {
@@ -87,6 +88,8 @@ func (c *Client) do(ctx context.Context, method, path string, data any, params .
 	if err != nil {
 		return err
 	}
+
+	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {

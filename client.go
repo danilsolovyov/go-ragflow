@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/danilsovyov/go-ragflow/options"
-	"github.com/danilsovyov/go-ragflow/parameters"
+	"github.com/danilsolovyov/go-ragflow/options"
+	"github.com/danilsolovyov/go-ragflow/parameters"
 )
 
 const (

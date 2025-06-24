@@ -3,8 +3,8 @@ package options
 import (
 	"strconv"
 
-	"github.com/danilsovyov/go-ragflow/parameters"
-	"github.com/danilsovyov/go-ragflow/utils"
+	"github.com/danilsolovyov/go-ragflow/parameters"
+	"github.com/danilsolovyov/go-ragflow/utils"
 )
 
 // ListAgentSessionsOptions represents the options for listing sessions.

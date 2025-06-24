@@ -1,6 +1,6 @@
 package options
 
-import "github.com/danilsovyov/go-ragflow/parameters"
+import "github.com/danilsolovyov/go-ragflow/parameters"
 
 type CreateAgentSessionOptions struct {
 	AgentID string         `json:"-"`

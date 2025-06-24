@@ -1,3 +1,3 @@
-module github.com/danilsovyov/go-ragflow
+module github.com/danilsolovyov/go-ragflow
 
 go 1.24.4

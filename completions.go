@@ -17,4 +17,13 @@ type CompletionsParam struct {
 	Value    string `json:"value"`
 }
 
+func (c *Completions) GetParam(key string) *CompletionsParam {
+	for _, p := range c.Param {
+		if p.Key == key {
+			return &p
+		}
+	}
+	return nil
+}
+
 type Reference any // TODO: implement me - it's maybe files

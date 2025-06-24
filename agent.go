@@ -58,6 +58,29 @@ func (c *Client) GetAgents(ctx context.Context, opts *options.GetAgentsOptions) 
 	return result, nil
 }
 
+// GetAgent retrieves an agent with the specified ID.
+// It makes a GET request to the agents endpoint with the ID as a path parameter.
+//
+// @param ctx context.Context - The context for the request.
+// @param id string - The ID of the agent to retrieve.
+// @return *Agent - A pointer to the Agent.
+// @return error - An error if the request fails.
+func (c *Client) GetAgent(ctx context.Context, id string) (*Agent, error) {
+	agents, err := c.GetAgents(ctx, &options.GetAgentsOptions{ID: id})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(agents) == 0 {
+		return nil, errors.New("agent not found")
+	}
+
+	agent := agents[0]
+	agent.client = c
+
+	return agent, nil
+}
+
 // getMe retrieves the current agent's details from the client and updates the agent instance.
 //
 // @param ctx The context for the operation.

@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	apiPath        = "/api/v1"
+	apiPath = "/api/v1"
 )
 
 type Client struct {
@@ -60,22 +60,22 @@ func NewClient(opts *options.ClientOptions) *Client {
 }
 
 func (c *Client) do(ctx context.Context, method, path string, data any, params ...parameters.Parameter) error {
-	u := url.URL{
+	u := &url.URL{
 		Scheme: c.scheme,
 		Host:   c.host,
-		Path:   apiPath,
+		Path:   apiPath + path,
 	}
 
-	u.JoinPath(path)
-
-	u = parameters.ApplyURL(u, params...)
+	err := parameters.ApplyURL(u, params...)
+	if err != nil {
+		return err
+	}
 	var reqBody io.Reader
-	var err error
 
 	// TODO: add support for files multipart/form-data
 	body := parameters.CreateBody(params...)
 
-	if body != nil {
+	if len(body) > 0 {
 		reqBody, err = ioReaderFromStruct(body)
 		if err != nil {
 			return err
@@ -97,24 +97,21 @@ func (c *Client) do(ctx context.Context, method, path string, data any, params .
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		var errResp ErrorResponse
-		if err = json.NewDecoder(resp.Body).Decode(&errResp); err == nil {
-			return errResp
-		}
-
-		return fmt.Errorf("unknown error, unexpected status code: %d", resp.StatusCode)
-	}
-
-	successResp := SuccessResponse{
+	respData := Response{
 		Data: data,
 	}
 
-	if err = json.NewDecoder(resp.Body).Decode(&successResp); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&respData); err != nil {
 		return err
 	}
 
-	data = successResp.Data
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unknown error, unexpected status code: %d", resp.StatusCode)
+	}
+
+	if respData.Code != 0 {
+		return fmt.Errorf("unknown error, unexpected request code: %w", ErrorResponse(respData))
+	}
 
 	return nil
 }

@@ -46,7 +46,7 @@ func (c *Client) GetAgents(ctx context.Context, opts *options.GetAgentsOptions) 
 	params := opts.Parameters()
 
 	result := []*Agent{}
-	err := c.do(ctx, http.MethodGet, path, nil, params...)
+	err := c.do(ctx, http.MethodGet, path, &result, params...)
 	if err != nil {
 		return nil, err
 	}
@@ -81,37 +81,19 @@ func (c *Client) GetAgent(ctx context.Context, id string) (*Agent, error) {
 	return agent, nil
 }
 
-// getMe retrieves the current agent's details from the client and updates the agent instance.
-//
-// @param ctx The context for the operation.
-// @return An error if the agent is not found or if there is a client error.
-func (a *Agent) getMe(ctx context.Context) error {
-	agents, err := a.client.GetAgents(ctx, &options.GetAgentsOptions{ID: a.ID})
-	if err != nil {
-		return err
-	}
-
-	if len(agents) == 0 {
-		return errors.New("agent not found")
-	}
-
-	found := agents[0]
-	found.client = a.client
-	a = found
-
-	return nil
-}
-
-// GetMe retrieves this agent.
+// GetMe retrieves the current agent's information from the server and updates the local agent instance.
 //
 // @param ctx context.Context - The context for the request.
-// @return *Agent - A pointer to the Agent.
+// @return *Agent - A pointer to the updated Agent instance.
 // @return error - An error if the request fails.
 func (a *Agent) GetMe(ctx context.Context) (*Agent, error) {
-	err := a.getMe(ctx)
+	me, err := a.client.GetAgent(ctx, a.ID)
 	if err != nil {
 		return nil, err
 	}
+
+	me.client = a.client
+	a = me
 
 	return a, nil
 }
@@ -186,14 +168,14 @@ func (a *Agent) Completions(ctx context.Context, opts *options.AgentCompletionsO
 
 	params := opts.Parameters()
 
-	var result Completions
+	result := new(Completions)
 
-	err := a.client.do(ctx, http.MethodPost, path, &result, params...)
+	err := a.client.do(ctx, http.MethodPost, path, result, params...)
 	if err != nil {
 		return nil, err
 	}
 
 	a.sessionID = result.SessionID
 
-	return &result, nil
+	return result, nil
 }

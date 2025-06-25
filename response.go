@@ -2,13 +2,15 @@ package goragflow
 
 import "fmt"
 
-type SuccessResponse struct {
-	Code int `json:"code"`
-	Data any `json:"data"`
+type Response struct {
+	Code    int    `json:"code"`
+	Data    any    `json:"data"`
+	Message string `json:"message"`
 }
 
 type ErrorResponse struct {
 	Code    int    `json:"code"`
+	Data    any    `json:"data"`
 	Message string `json:"message"`
 }
 

@@ -46,8 +46,16 @@ func NewBodyParameter(name string, value any) Parameter {
 	}
 }
 
-func ApplyURL(u url.URL, parameters ...Parameter) url.URL {
+func ApplyURL(u *url.URL, parameters ...Parameter) error {
 	vals := make(url.Values)
+	var err error
+
+	if u.RawQuery != "" {
+		vals, err = url.ParseQuery(u.RawQuery)
+	}
+	if err != nil {
+		return err
+	}
 
 	for _, p := range parameters {
 		if val, ok := p.Value.(string); ok {
@@ -67,7 +75,9 @@ func ApplyURL(u url.URL, parameters ...Parameter) url.URL {
 		}
 	}
 
-	return u
+	u.RawQuery = vals.Encode()
+
+	return nil
 }
 
 func CreateBody(parameters ...Parameter) map[string]any {

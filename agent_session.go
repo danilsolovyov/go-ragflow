@@ -4,396 +4,113 @@
 package goragflow
 
 type Session struct {
-	AgentID    string    `json:"agent_id"`
-	CreateDate string    `json:"create_date"`
-	CreateTime int64     `json:"create_time"`
-	DSL        DSL       `json:"dsl"`
-	Duration   int64     `json:"duration"`
-	ID         string    `json:"id"`
-	Messages   []Message `json:"messages"`
-	Round      int64     `json:"round"`
-	Source     string    `json:"source"`
-	ThumbUp    int64     `json:"thumb_up"`
-	Tokens     int64     `json:"tokens"`
-	UpdateDate string    `json:"update_date"`
-	UpdateTime int64     `json:"update_time"`
-	UserID     string    `json:"user_id"`
+	AgentID    string           `json:"agent_id"`
+	CreateDate string           `json:"create_date"`
+	CreateTime int64            `json:"create_time"`
+	DSL        DSL              `json:"dsl"`
+	Duration   int64            `json:"duration"`
+	ID         string           `json:"id"`
+	Messages   []SessionMessage `json:"messages"`
+	Round      int64            `json:"round"`
+	Source     string           `json:"source"`
+	ThumbUp    int64            `json:"thumb_up"`
+	Tokens     int64            `json:"tokens"`
+	UpdateDate string           `json:"update_date"`
+	UpdateTime int64            `json:"update_time"`
+	UserID     string           `json:"user_id"`
+}
+
+type SessionMessage struct {
+	Content   string  `json:"content"`
+	CreatedAt float64 `json:"created_at"`
+	ID        string  `json:"id"`
+	Reference []any   `json:"reference"`
+	Role      string  `json:"role"`
 }
 
 type DSL struct {
-	Answer     []interface{} `json:"answer"`
-	Components Components    `json:"components"`
-	EmbedID    string        `json:"embed_id"`
-	Graph      Graph         `json:"graph"`
-	History    [][]string    `json:"history"`
-	Messages   []Message     `json:"messages"`
-	Path       [][]string    `json:"path"`
-	Reference  []interface{} `json:"reference"`
+	Answer     []any                   `json:"answer"`
+	Components map[string]DSLComponent `json:"components"`
+	EmbedID    string                  `json:"embed_id"`
+	Graph      DSLGraph                `json:"graph"`
+	History    [][]string              `json:"history"`
+	Messages   []SessionMessage        `json:"messages"`
+	Path       [][]string              `json:"path"`
+	Reference  []any                   `json:"reference"`
 }
 
-type Components struct {
-	AkShareCalmHotelsKnow          AkShareCalmHotelsKnow       `json:"AkShare:CalmHotelsKnow"`
-	AnswerFlatGhostsCheat          AkShareCalmHotelsKnow       `json:"Answer:FlatGhostsCheat"`
-	BaiduCleanJarsMake             AkShareCalmHotelsKnow       `json:"Baidu:CleanJarsMake"`
-	CategorizeKhakiTimesSmile      CategorizeKhakiTimesSmile   `json:"Categorize:KhakiTimesSmile"`
-	ConcentratorDryTrainsSearch    AkShareCalmHotelsKnow       `json:"Concentrator:DryTrainsSearch"`
-	ConcentratorTrueGeckosSlide    AkShareCalmHotelsKnow       `json:"Concentrator:TrueGeckosSlide"`
-	DuckDuckGoNiceSeasInvent       AkShareCalmHotelsKnow       `json:"DuckDuckGo:NiceSeasInvent"`
-	GenerateFiveDragonsLay         GenerateFiveDragonsLay      `json:"Generate:FiveDragonsLay"`
-	GenerateFunnyHandsTickle       Generate                    `json:"Generate:FunnyHandsTickle"`
-	GenerateKhakiCrabsGlow         Generate                    `json:"Generate:KhakiCrabsGlow"`
-	GenerateLazyClubsAttack        Generate                    `json:"Generate:LazyClubsAttack"`
-	GenerateOddInsectsRaise        Generate                    `json:"Generate:OddInsectsRaise"`
-	GenerateRealFansObey           Generate                    `json:"Generate:RealFansObey"`
-	GenerateTenderFlowersItch      Generate                    `json:"Generate:TenderFlowersItch"`
-	KeywordExtractFineApesSmash    KeywordExtractFineApesSmash `json:"KeywordExtract:FineApesSmash"`
-	KeywordExtractPurpleApplesKnow KeywordExtractFineApesSmash `json:"KeywordExtract:PurpleApplesKnow"`
-	PubMedEasyQueensLose           AkShareCalmHotelsKnow       `json:"PubMed:EasyQueensLose"`
-	QWeatherDeepKiwisTeach         QWeatherDeepKiwisTeach      `json:"QWeather:DeepKiwisTeach"`
-	RetrievalLemonGeckosHear       RetrievalLemonGeckosHear    `json:"Retrieval:LemonGeckosHear"`
-	RewriteQuestionWholeOwlsTurn   KeywordExtractFineApesSmash `json:"RewriteQuestion:WholeOwlsTurn"`
-	WenCAITenParksOpen             AkShareCalmHotelsKnow       `json:"WenCai:TenParksOpen"`
-	WikipediaThinLampsTravel       AkShareCalmHotelsKnow       `json:"Wikipedia:ThinLampsTravel"`
-	Answer0                        AkShareCalmHotelsKnow       `json:"answer:0"`
-	Begin                          AkShareCalmHotelsKnow       `json:"begin"`
+type DSLComponent struct {
+	Downstream []string        `json:"downstream"`
+	Name       string          `json:"name"`
+	Upstream   []string        `json:"upstream"`
+	Params     map[string]any  `json:"params"`
+	Obj        DSLComponentObj `json:"obj"`
 }
 
-type AkShareCalmHotelsKnow struct {
-	Downstream []string                 `json:"downstream"`
-	Obj        AkShareCalmHotelsKnowObj `json:"obj"`
-	Upstream   []string                 `json:"upstream"`
+type DSLComponentObj struct {
+	ComponentName string                 `json:"component_name"`
+	Name          string                 `json:"name"`
+	Type          string                 `json:"type"`
+	Inputs        []DSLComponentObjInput `json:"inputs"`
+	Output        DSLComponentObjOutput  `json:"output"`
+	Params        map[string]any         `json:"params"`
 }
 
-type AkShareCalmHotelsKnowObj struct {
-	ComponentName string        `json:"component_name"`
-	Inputs        []Input       `json:"inputs"`
-	Output        *PurpleOutput `json:"output"`
-	Params        PurpleParams  `json:"params"`
-}
-
-type Input struct {
+type DSLComponentObjInput struct {
 	ComponentID string `json:"component_id"`
 	Content     string `json:"content"`
 }
 
-type PurpleOutput struct {
-	ComponentID Content `json:"component_id"`
-	Content     Content `json:"content"`
-}
-
-type Content struct {
-	The0 string `json:"0"`
-}
-
-type PurpleParams struct {
-	DebugInputs              []interface{} `json:"debug_inputs"`
-	InforVarName             InforVarName  `json:"infor_var_name"`
-	Inputs                   []Input       `json:"inputs"`
-	MessageHistoryWindowSize int64         `json:"message_history_window_size"`
-	Output                   *PurpleOutput `json:"output"`
-	OutputVarName            OutputVarName `json:"output_var_name"`
-	Query                    []Query       `json:"query"`
-	TopN                     *int64        `json:"top_n,omitempty"`
-	PostAnswers              []interface{} `json:"post_answers,omitempty"`
-	Channel                  *string       `json:"channel,omitempty"`
-	Email                    *string       `json:"email,omitempty"`
-	QueryType                *string       `json:"query_type,omitempty"`
-	Language                 *string       `json:"language,omitempty"`
-	Prologue                 *string       `json:"prologue,omitempty"`
+type DSLComponentObjOutput struct {
+	ComponentID any `json:"component_id"`
+	Content     any `json:"content"`
 }
 
 type Query struct {
-	ComponentID string    `json:"component_id"`
-	Type        QueryType `json:"type"`
+	ComponentID string `json:"component_id"`
+	Type        string `json:"type"`
 }
 
-type CategorizeKhakiTimesSmile struct {
-	Downstream []string                     `json:"downstream"`
-	Obj        CategorizeKhakiTimesSmileObj `json:"obj"`
-	Upstream   []string                     `json:"upstream"`
-}
-
-type CategorizeKhakiTimesSmileObj struct {
-	ComponentName string       `json:"component_name"`
-	Inputs        []Input      `json:"inputs"`
-	Output        FluffyOutput `json:"output"`
-	Params        FluffyParams `json:"params"`
-}
-
-type FluffyOutput struct {
-	Content Content `json:"content"`
-}
-
-type FluffyParams struct {
-	CategoryDescription      *CategoryDescription `json:"category_description,omitempty"`
-	Cite                     bool                 `json:"cite"`
-	DebugInputs              []interface{}        `json:"debug_inputs"`
-	FrequencyPenalty         float64              `json:"frequency_penalty"`
-	Infor                    *InforClass          `json:"infor,omitempty"`
-	InforVarName             InforVarName         `json:"infor_var_name"`
-	Inputs                   []Input              `json:"inputs"`
-	LlmEnabledTools          []interface{}        `json:"llm_enabled_tools"`
-	LlmID                    LlmID                `json:"llm_id"`
-	MaxTokens                int64                `json:"max_tokens"`
-	MessageHistoryWindowSize int64                `json:"message_history_window_size"`
-	Output                   *FluffyOutput        `json:"output"`
-	OutputVarName            OutputVarName        `json:"output_var_name"`
-	Parameters               []interface{}        `json:"parameters"`
-	PresencePenalty          float64              `json:"presence_penalty"`
-	Prompt                   string               `json:"prompt"`
-	Query                    []interface{}        `json:"query"`
-	Temperature              float64              `json:"temperature"`
-	TopP                     float64              `json:"top_p"`
-}
-
-type CategoryDescription struct {
-	The1Weather      The1_Weather `json:"1. weather"`
-	The2Finance      The1_Weather `json:"2. finance"`
-	The3Medical      The1_Weather `json:"3. medical"`
-	The4Other        The4Other    `json:"4. other"`
-	The5Chitchatting The1_Weather `json:"5. chitchatting"`
-}
-
-type The1_Weather struct {
-	Description string `json:"description"`
-	Examples    string `json:"examples"`
-	To          string `json:"to"`
-}
-
-type The4Other struct {
-	Description string `json:"description"`
-	To          string `json:"to"`
-}
-
-type InforClass struct {
-	Conf     Conf           `json:"conf"`
-	Messages []InforMessage `json:"messages"`
-	Prompt   string         `json:"prompt"`
-}
-
-type Conf struct {
-	FrequencyPenalty float64 `json:"frequency_penalty"`
-	MaxTokens        int64   `json:"max_tokens"`
-	PresencePenalty  float64 `json:"presence_penalty"`
-	Temperature      float64 `json:"temperature"`
-	TopP             float64 `json:"top_p"`
-}
-
-type InforMessage struct {
-	Content string `json:"content"`
-	Role    Role   `json:"role"`
-}
-
-type GenerateFiveDragonsLay struct {
-	Downstream []string                  `json:"downstream"`
-	Obj        GenerateFiveDragonsLayObj `json:"obj"`
-	Upstream   []string                  `json:"upstream"`
-}
-
-type GenerateFiveDragonsLayObj struct {
-	ComponentName string          `json:"component_name"`
-	Inputs        []interface{}   `json:"inputs"`
-	Output        PurpleOutput    `json:"output"`
-	Params        TentacledParams `json:"params"`
-}
-
-type TentacledParams struct {
-	Cite                     bool          `json:"cite"`
-	DebugInputs              []interface{} `json:"debug_inputs"`
-	FrequencyPenalty         float64       `json:"frequency_penalty"`
-	Infor                    *InforClass   `json:"infor,omitempty"`
-	InforVarName             InforVarName  `json:"infor_var_name"`
-	Inputs                   []interface{} `json:"inputs"`
-	LlmEnabledTools          []interface{} `json:"llm_enabled_tools"`
-	LlmID                    LlmID         `json:"llm_id"`
-	MaxTokens                int64         `json:"max_tokens"`
-	MessageHistoryWindowSize int64         `json:"message_history_window_size"`
-	Output                   *PurpleOutput `json:"output"`
-	OutputVarName            OutputVarName `json:"output_var_name"`
-	Parameters               []interface{} `json:"parameters"`
-	PresencePenalty          float64       `json:"presence_penalty"`
-	Prompt                   string        `json:"prompt"`
-	Query                    []interface{} `json:"query"`
-	Temperature              float64       `json:"temperature"`
-	TopP                     float64       `json:"top_p"`
-}
-
-type Generate struct {
-	Downstream []string                    `json:"downstream"`
-	Obj        GenerateFunnyHandsTickleObj `json:"obj"`
-	Upstream   []string                    `json:"upstream"`
-}
-
-type GenerateFunnyHandsTickleObj struct {
-	ComponentName string        `json:"component_name"`
-	Inputs        []interface{} `json:"inputs"`
-	Output        interface{}   `json:"output"`
-	Params        StickyParams  `json:"params"`
-}
-
-type StickyParams struct {
-	Cite                     bool          `json:"cite"`
-	DebugInputs              []interface{} `json:"debug_inputs"`
-	FrequencyPenalty         float64       `json:"frequency_penalty"`
-	InforVarName             InforVarName  `json:"infor_var_name"`
-	Inputs                   []interface{} `json:"inputs"`
-	LlmEnabledTools          []interface{} `json:"llm_enabled_tools"`
-	LlmID                    LlmID         `json:"llm_id"`
-	MaxTokens                int64         `json:"max_tokens"`
-	MessageHistoryWindowSize int64         `json:"message_history_window_size"`
-	Output                   interface{}   `json:"output"`
-	OutputVarName            OutputVarName `json:"output_var_name"`
-	Parameters               []interface{} `json:"parameters"`
-	PresencePenalty          float64       `json:"presence_penalty"`
-	Prompt                   string        `json:"prompt"`
-	Query                    []interface{} `json:"query"`
-	Temperature              float64       `json:"temperature"`
-	TopP                     float64       `json:"top_p"`
-}
-
-type KeywordExtractFineApesSmash struct {
-	Downstream []string                       `json:"downstream"`
-	Obj        KeywordExtractFineApesSmashObj `json:"obj"`
-	Upstream   []string                       `json:"upstream"`
-}
-
-type KeywordExtractFineApesSmashObj struct {
-	ComponentName string        `json:"component_name"`
-	Inputs        []Input       `json:"inputs"`
-	Output        *PurpleOutput `json:"output"`
-	Params        IndigoParams  `json:"params"`
-}
-
-type IndigoParams struct {
-	Cite                     bool          `json:"cite"`
-	DebugInputs              []interface{} `json:"debug_inputs"`
-	FrequencyPenaltyEnabled  bool          `json:"frequencyPenaltyEnabled"`
-	FrequencyPenalty         float64       `json:"frequency_penalty"`
-	InforVarName             InforVarName  `json:"infor_var_name"`
-	Inputs                   []Input       `json:"inputs"`
-	LlmEnabledTools          []interface{} `json:"llm_enabled_tools"`
-	LlmID                    LlmID         `json:"llm_id"`
-	MaxTokensEnabled         bool          `json:"maxTokensEnabled"`
-	MaxTokens                int64         `json:"max_tokens"`
-	MessageHistoryWindowSize int64         `json:"message_history_window_size"`
-	Output                   *PurpleOutput `json:"output"`
-	OutputVarName            OutputVarName `json:"output_var_name"`
-	Parameter                Parameter     `json:"parameter"`
-	Parameters               []interface{} `json:"parameters"`
-	PresencePenaltyEnabled   bool          `json:"presencePenaltyEnabled"`
-	PresencePenalty          float64       `json:"presence_penalty"`
-	Prompt                   string        `json:"prompt"`
-	Query                    []Query       `json:"query"`
-	Temperature              float64       `json:"temperature"`
-	TemperatureEnabled       bool          `json:"temperatureEnabled"`
-	TopPEnabled              bool          `json:"topPEnabled"`
-	TopN                     *int64        `json:"top_n,omitempty"`
-	TopP                     float64       `json:"top_p"`
-	Language                 *string       `json:"language,omitempty"`
-}
-
-type QWeatherDeepKiwisTeach struct {
-	Downstream []string                  `json:"downstream"`
-	Obj        QWeatherDeepKiwisTeachObj `json:"obj"`
-	Upstream   []string                  `json:"upstream"`
-}
-
-type QWeatherDeepKiwisTeachObj struct {
-	ComponentName string         `json:"component_name"`
-	Inputs        []interface{}  `json:"inputs"`
-	Output        interface{}    `json:"output"`
-	Params        IndecentParams `json:"params"`
-}
-
-type IndecentParams struct {
-	DebugInputs              []interface{}     `json:"debug_inputs"`
-	ErrorCode                map[string]string `json:"error_code"`
-	InforVarName             InforVarName      `json:"infor_var_name"`
-	Inputs                   []interface{}     `json:"inputs"`
-	Lang                     string            `json:"lang"`
-	MessageHistoryWindowSize int64             `json:"message_history_window_size"`
-	Output                   interface{}       `json:"output"`
-	OutputVarName            OutputVarName     `json:"output_var_name"`
-	Query                    []interface{}     `json:"query"`
-	TimePeriod               string            `json:"time_period"`
-	Type                     string            `json:"type"`
-	UserType                 string            `json:"user_type"`
-	WebApikey                string            `json:"web_apikey"`
-}
-
-type RetrievalLemonGeckosHear struct {
-	Downstream []string                    `json:"downstream"`
-	Obj        RetrievalLemonGeckosHearObj `json:"obj"`
-	Upstream   []string                    `json:"upstream"`
-}
-
-type RetrievalLemonGeckosHearObj struct {
-	ComponentName string          `json:"component_name"`
-	Inputs        []interface{}   `json:"inputs"`
-	Output        interface{}     `json:"output"`
-	Params        HilariousParams `json:"params"`
-}
-
-type HilariousParams struct {
-	DebugInputs              []interface{} `json:"debug_inputs"`
-	EmptyResponse            string        `json:"empty_response"`
-	InforVarName             InforVarName  `json:"infor_var_name"`
-	Inputs                   []interface{} `json:"inputs"`
-	KBIDS                    []interface{} `json:"kb_ids"`
-	KBVars                   []interface{} `json:"kb_vars"`
-	KeywordsSimilarityWeight float64       `json:"keywords_similarity_weight"`
-	MessageHistoryWindowSize int64         `json:"message_history_window_size"`
-	Output                   interface{}   `json:"output"`
-	OutputVarName            OutputVarName `json:"output_var_name"`
-	Query                    []Query       `json:"query"`
-	RerankID                 string        `json:"rerank_id"`
-	SimilarityThreshold      float64       `json:"similarity_threshold"`
-	TavilyAPIKey             string        `json:"tavily_api_key"`
-	TopK                     int64         `json:"top_k"`
-	TopN                     int64         `json:"top_n"`
-	UseKg                    bool          `json:"use_kg"`
-}
-
-type Graph struct {
+type DSLGraph struct {
 	Edges []Edge `json:"edges"`
 	Nodes []Node `json:"nodes"`
 }
 
 type Edge struct {
-	ID           string        `json:"id"`
-	Label        *string       `json:"label,omitempty"`
-	Source       string        `json:"source"`
-	Target       string        `json:"target"`
-	MarkerEnd    *MarkerEnd    `json:"markerEnd,omitempty"`
-	SourceHandle *string       `json:"sourceHandle,omitempty"`
-	Style        *Style        `json:"style,omitempty"`
-	TargetHandle *TargetHandle `json:"targetHandle,omitempty"`
-	Type         *EdgeType     `json:"type,omitempty"`
-	ZIndex       *int64        `json:"zIndex,omitempty"`
-	Selected     *bool         `json:"selected,omitempty"`
+	ID           string  `json:"id"`
+	Label        *string `json:"label,omitempty"`
+	Source       string  `json:"source"`
+	Target       string  `json:"target"`
+	MarkerEnd    string  `json:"markerEnd,omitempty"`
+	SourceHandle *string `json:"sourceHandle,omitempty"`
+	Style        *Style  `json:"style,omitempty"`
+	TargetHandle string  `json:"targetHandle,omitempty"`
+	Type         string  `json:"type,omitempty"`
+	ZIndex       *int64  `json:"zIndex,omitempty"`
+	Selected     *bool   `json:"selected,omitempty"`
 }
 
 type Style struct {
-	Stroke      Stroke `json:"stroke"`
+	Stroke      string `json:"stroke"`
 	StrokeWidth int64  `json:"strokeWidth"`
 }
 
 type Node struct {
-	Data             Data               `json:"data"`
-	Dragging         bool               `json:"dragging"`
-	Height           *int64             `json:"height,omitempty"`
-	ID               string             `json:"id"`
-	Measured         Measured           `json:"measured"`
-	Position         Position           `json:"position"`
-	PositionAbsolute *Position          `json:"positionAbsolute,omitempty"`
-	Selected         bool               `json:"selected"`
-	SourcePosition   SourcePositionEnum `json:"sourcePosition"`
-	TargetPosition   SourcePositionEnum `json:"targetPosition"`
-	Type             string             `json:"type"`
-	Width            *int64             `json:"width,omitempty"`
-	DragHandle       *string            `json:"dragHandle,omitempty"`
-	Resizing         *bool              `json:"resizing,omitempty"`
-	Style            *Measured          `json:"style,omitempty"`
+	Data             Data      `json:"data"`
+	Dragging         bool      `json:"dragging"`
+	Height           *int64    `json:"height,omitempty"`
+	ID               string    `json:"id"`
+	Measured         Measured  `json:"measured"`
+	Position         Position  `json:"position"`
+	PositionAbsolute *Position `json:"positionAbsolute,omitempty"`
+	Selected         bool      `json:"selected"`
+	SourcePosition   string    `json:"sourcePosition"`
+	TargetPosition   string    `json:"targetPosition"`
+	Type             string    `json:"type"`
+	Width            *int64    `json:"width,omitempty"`
+	DragHandle       *string   `json:"dragHandle,omitempty"`
+	Resizing         *bool     `json:"resizing,omitempty"`
+	Style            *Measured `json:"style,omitempty"`
 }
 
 type Data struct {
@@ -403,39 +120,39 @@ type Data struct {
 }
 
 type Form struct {
-	Prologue                 *string              `json:"prologue,omitempty"`
-	QueryType                *string              `json:"query_type,omitempty"`
-	TopN                     *int64               `json:"top_n,omitempty"`
-	Query                    []Query              `json:"query,omitempty"`
-	CategoryDescription      *CategoryDescription `json:"category_description,omitempty"`
-	FrequencyPenaltyEnabled  *bool                `json:"frequencyPenaltyEnabled,omitempty"`
-	FrequencyPenalty         *float64             `json:"frequency_penalty,omitempty"`
-	LlmID                    *LlmID               `json:"llm_id,omitempty"`
-	MaxTokensEnabled         *bool                `json:"maxTokensEnabled,omitempty"`
-	MaxTokens                *int64               `json:"max_tokens,omitempty"`
-	MessageHistoryWindowSize *int64               `json:"message_history_window_size,omitempty"`
-	Parameter                *Parameter           `json:"parameter,omitempty"`
-	PresencePenaltyEnabled   *bool                `json:"presencePenaltyEnabled,omitempty"`
-	PresencePenalty          *float64             `json:"presence_penalty,omitempty"`
-	Temperature              *float64             `json:"temperature,omitempty"`
-	TemperatureEnabled       *bool                `json:"temperatureEnabled,omitempty"`
-	TopPEnabled              *bool                `json:"topPEnabled,omitempty"`
-	TopP                     *float64             `json:"top_p,omitempty"`
-	Email                    *string              `json:"email,omitempty"`
-	Channel                  *string              `json:"channel,omitempty"`
-	Language                 *string              `json:"language,omitempty"`
-	Lang                     *string              `json:"lang,omitempty"`
-	TimePeriod               *string              `json:"time_period,omitempty"`
-	Type                     *string              `json:"type,omitempty"`
-	UserType                 *string              `json:"user_type,omitempty"`
-	WebApikey                *string              `json:"web_apikey,omitempty"`
-	Cite                     *bool                `json:"cite,omitempty"`
-	Parameters               []interface{}        `json:"parameters,omitempty"`
-	Prompt                   *string              `json:"prompt,omitempty"`
-	KBIDS                    []interface{}        `json:"kb_ids,omitempty"`
-	KeywordsSimilarityWeight *float64             `json:"keywords_similarity_weight,omitempty"`
-	SimilarityThreshold      *float64             `json:"similarity_threshold,omitempty"`
-	Text                     *string              `json:"text,omitempty"`
+	Prologue                 *string  `json:"prologue,omitempty"`
+	QueryType                *string  `json:"query_type,omitempty"`
+	TopN                     *int64   `json:"top_n,omitempty"`
+	Query                    []Query  `json:"query,omitempty"`
+	CategoryDescription      any      `json:"category_description,omitempty"`
+	FrequencyPenaltyEnabled  *bool    `json:"frequencyPenaltyEnabled,omitempty"`
+	FrequencyPenalty         *float64 `json:"frequency_penalty,omitempty"`
+	LlmID                    string   `json:"llm_id,omitempty"`
+	MaxTokensEnabled         *bool    `json:"maxTokensEnabled,omitempty"`
+	MaxTokens                *int64   `json:"max_tokens,omitempty"`
+	MessageHistoryWindowSize *int64   `json:"message_history_window_size,omitempty"`
+	Parameter                string   `json:"parameter,omitempty"`
+	PresencePenaltyEnabled   *bool    `json:"presencePenaltyEnabled,omitempty"`
+	PresencePenalty          *float64 `json:"presence_penalty,omitempty"`
+	Temperature              *float64 `json:"temperature,omitempty"`
+	TemperatureEnabled       *bool    `json:"temperatureEnabled,omitempty"`
+	TopPEnabled              *bool    `json:"topPEnabled,omitempty"`
+	TopP                     *float64 `json:"top_p,omitempty"`
+	Email                    *string  `json:"email,omitempty"`
+	Channel                  *string  `json:"channel,omitempty"`
+	Language                 *string  `json:"language,omitempty"`
+	Lang                     *string  `json:"lang,omitempty"`
+	TimePeriod               *string  `json:"time_period,omitempty"`
+	Type                     *string  `json:"type,omitempty"`
+	UserType                 *string  `json:"user_type,omitempty"`
+	WebApikey                *string  `json:"web_apikey,omitempty"`
+	Cite                     *bool    `json:"cite,omitempty"`
+	Parameters               []any    `json:"parameters,omitempty"`
+	Prompt                   *string  `json:"prompt,omitempty"`
+	KBIDS                    []any    `json:"kb_ids,omitempty"`
+	KeywordsSimilarityWeight *float64 `json:"keywords_similarity_weight,omitempty"`
+	SimilarityThreshold      *float64 `json:"similarity_threshold,omitempty"`
+	Text                     *string  `json:"text,omitempty"`
 }
 
 type Measured struct {
@@ -447,81 +164,3 @@ type Position struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`
 }
-
-type Message struct {
-	Content   string        `json:"content"`
-	ID        *string       `json:"id,omitempty"`
-	Role      Role          `json:"role"`
-	CreatedAt *float64      `json:"created_at,omitempty"`
-	Reference []interface{} `json:"reference,omitempty"`
-}
-
-type InforVarName string
-
-const (
-	Infor InforVarName = "infor"
-)
-
-type OutputVarName string
-
-const (
-	Output OutputVarName = "output"
-)
-
-type QueryType string
-
-const (
-	ReferenceQueryType QueryType = "reference"
-)
-
-type Role string
-
-const (
-	Assistant Role = "assistant"
-	User      Role = "user"
-)
-
-type LlmID string
-
-const (
-	DeepseekChatDeepSeek LlmID = "deepseek-chat@DeepSeek"
-)
-
-type Parameter string
-
-const (
-	Precise Parameter = "Precise"
-)
-
-type MarkerEnd string
-
-const (
-	Logo MarkerEnd = "logo"
-)
-
-type Stroke string
-
-const (
-	RGB202197245 Stroke = "rgb(202 197 245)"
-)
-
-type TargetHandle string
-
-const (
-	A TargetHandle = "a"
-	B TargetHandle = "b"
-	C TargetHandle = "c"
-)
-
-type EdgeType string
-
-const (
-	ButtonEdge EdgeType = "buttonEdge"
-)
-
-type SourcePositionEnum string
-
-const (
-	Left  SourcePositionEnum = "left"
-	Right SourcePositionEnum = "right"
-)

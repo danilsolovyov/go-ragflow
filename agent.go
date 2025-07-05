@@ -2,7 +2,6 @@ package goragflow
 
 import (
 	"context"
-	"errors"
 	"net/http"
 
 	"github.com/danilsolovyov/go-ragflow/options"
@@ -32,54 +31,6 @@ func NewAgent(id string, client *Client) *Agent {
 	}
 }
 
-// GetAgents retrieves a list of agents with the specified options.
-// It merges the provided options with default values and makes a GET request to the agents endpoint.
-//
-// @param ctx context.Context - The context for the request.
-// @param opts *options.GetAgentsOptions - Options for filtering, pagination, and sorting agents.
-// @return []*Agent - A slice of Agent pointers representing the retrieved agents.
-// @return error - An error if the request fails.
-func (c *Client) GetAgents(ctx context.Context, opts *options.GetAgentsOptions) ([]*Agent, error) {
-	path := "/agents"
-	opts = options.DefaultGetAgentsOptions().Merge(opts)
-	params := opts.Parameters()
-
-	result := []*Agent{}
-	err := c.do(ctx, http.MethodGet, path, &result, params...)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, item := range result {
-		item.client = c
-	}
-
-	return result, nil
-}
-
-// GetAgent retrieves an agent with the specified ID.
-// It makes a GET request to the agents endpoint with the ID as a path parameter.
-//
-// @param ctx context.Context - The context for the request.
-// @param id string - The ID of the agent to retrieve.
-// @return *Agent - A pointer to the Agent.
-// @return error - An error if the request fails.
-func (c *Client) GetAgent(ctx context.Context, id string) (*Agent, error) {
-	agents, err := c.GetAgents(ctx, &options.GetAgentsOptions{ID: id})
-	if err != nil {
-		return nil, err
-	}
-
-	if len(agents) == 0 {
-		return nil, errors.New("agent not found")
-	}
-
-	agent := agents[0]
-	agent.client = c
-
-	return agent, nil
-}
-
 // GetMe retrieves the current agent's information from the server and updates the local agent instance.
 //
 // @param ctx context.Context - The context for the request.
@@ -95,6 +46,17 @@ func (a *Agent) GetMe(ctx context.Context) (*Agent, error) {
 	a = me
 
 	return a, nil
+}
+
+// GetClient returns the Client instance associated with the Agent.
+func (a *Agent) GetClient() *Client {
+	return a.client
+}
+
+// SetClient sets the provided Client instance to the Agent.
+// This allows the Agent to use the specified Client for its operations.
+func (a *Agent) SetClient(client *Client) {
+	a.client = client
 }
 
 // ListSessions retrieves a list of sessions for this agent.
@@ -149,6 +111,9 @@ func (a *Agent) CreateSession(ctx context.Context, opts *options.CreateAgentSess
 	return result, nil
 }
 
-func (a *Agent) DeleteSessions(ctx context.Context, sessionID []string) error {
-	return deleteAgentSessions(ctx, a.client, a.ID, sessionID)
+// DeleteSessions deletes the sessions with the specified session IDs associated with the agent.
+// It takes a context for cancellation and timeout control, and a slice of session IDs to delete.
+// Returns an error if the deletion fails.
+func (a *Agent) DeleteSessions(ctx context.Context, sessionIDs []string) error {
+	return deleteAgentSessions(ctx, a.client, a.ID, sessionIDs)
 }

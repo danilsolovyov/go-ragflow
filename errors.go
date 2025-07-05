@@ -7,6 +7,7 @@ import (
 
 var (
 	ErrAgentIDRequired    = errors.New("agent ID is required")
+	ErrAgentNotFound      = errors.New("agent not found")
 	ErrSessionIDsRequired = errors.New("session IDs are required")
 	ErrOptionsRequired    = errors.New("options are required")
 	ErrNotImplementedYet  = errors.New("not implemented yet")

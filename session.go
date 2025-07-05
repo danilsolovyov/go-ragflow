@@ -13,6 +13,7 @@ import (
 
 type Session struct {
 	AgentID    string           `json:"agent_id"`
+	ChatID     string           `json:"chat_id"`
 	CreateDate string           `json:"create_date"`
 	CreateTime int64            `json:"create_time"`
 	DSL        DSL              `json:"dsl"`
@@ -29,6 +30,13 @@ type Session struct {
 	client     *Client          `json:"-"`
 }
 
+// GetClient returns the Client associated with the Session.
+func (s *Session) GetClient() *Client {
+	return s.client
+}
+
+// SetClient assigns the provided Client instance to the Session.
+// This method allows updating or setting the client associated with the session.
 func (s *Session) SetClient(client *Client) {
 	s.client = client
 }
@@ -37,10 +45,6 @@ func (s *Session) SetClient(client *Client) {
 func (s *Session) Completions(ctx context.Context, opts *options.CompletionsOptions) (*Completions, error) {
 	if opts == nil {
 		return nil, ErrOptionsRequired
-	}
-
-	if s.AgentID != "" && opts.AgentID == "" {
-		opts.SetAgentID(s.AgentID)
 	}
 
 	if s.UserID != "" && opts.UserID == "" {
@@ -53,6 +57,10 @@ func (s *Session) Completions(ctx context.Context, opts *options.CompletionsOpti
 
 	if opts.ChatID != "" {
 		return nil, ErrNotImplementedYet
+	}
+
+	if s.AgentID != "" && opts.AgentID == "" {
+		opts.SetAgentID(s.AgentID)
 	}
 
 	return s.agentCompletions(ctx, opts)
@@ -70,10 +78,6 @@ func (s *Session) agentCompletions(ctx context.Context, opts *options.Completion
 		return nil, ErrAgentIDRequired
 	}
 
-	if s.ID != "" {
-		opts.SetSessionID(s.ID)
-	}
-
 	params := opts.Parameters()
 
 	result := new(Completions)
@@ -88,11 +92,10 @@ func (s *Session) agentCompletions(ctx context.Context, opts *options.Completion
 	return result, nil
 }
 
+// DeleteSession deletes the current session identified by the Session's ID.
+// If the AgentID is set, it deletes the session for the specified agent using deleteAgentSessions.
+// Returns an error if the deletion fails, or nil if successful.
 func (s *Session) DeleteSession(ctx context.Context) error {
-	if s.ID == "" {
-		return ErrSessionIDsRequired
-	}
-
 	if s.AgentID != "" {
 		return deleteAgentSessions(ctx, s.client, s.AgentID, []string{s.ID})
 	}
@@ -100,6 +103,18 @@ func (s *Session) DeleteSession(ctx context.Context) error {
 	return nil
 }
 
+// deleteAgentSessions deletes one or more sessions associated with a specific agent.
+// It requires a non-empty agentID and a non-empty slice of session IDs.
+// Returns an error if the agentID or session IDs are missing, or if the HTTP request fails.
+//
+// Parameters:
+//   - ctx: Context for controlling cancellation and deadlines.
+//   - client: The API client used to perform the request.
+//   - agentID: The unique identifier of the agent whose sessions are to be deleted.
+//   - ids: A slice of session IDs to be deleted.
+//
+// Returns:
+//   - error: An error if the operation fails, or nil on success.
 func deleteAgentSessions(ctx context.Context, client *Client, agentID string, ids []string) error {
 	if agentID == "" {
 		return ErrAgentIDRequired

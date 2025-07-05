@@ -59,6 +59,12 @@ func NewClient(opts *options.ClientOptions) *Client {
 	return client
 }
 
+func (c *Client) Close() {
+	if c.httpClient != nil {
+		c.httpClient.CloseIdleConnections()
+	}
+}
+
 func (c *Client) do(ctx context.Context, method, path string, data any, params ...parameters.Parameter) error {
 	u := &url.URL{
 		Scheme: c.scheme,
@@ -110,13 +116,14 @@ func (c *Client) do(ctx context.Context, method, path string, data any, params .
 	}
 
 	if respData.Code != 0 {
-		return fmt.Errorf("unknown error, unexpected request code: %w", ErrorResponse(respData))
+		return fmt.Errorf("unknown error, unexpected request code: %w", ResponseError(respData))
 	}
 
 	return nil
 }
-func (r *Client) Close() {
-	if r.httpClient != nil {
-		r.httpClient.CloseIdleConnections()
-	}
+
+type Response struct {
+	Code    int    `json:"code"`
+	Data    any    `json:"data"`
+	Message string `json:"message"`
 }

@@ -22,7 +22,6 @@ type Agent struct {
 	UpdateDate  string      `json:"update_date"`
 	UpdateTime  int64       `json:"update_time"`
 	UserID      any         `json:"user_id"`
-	sessionID   string      `json:"-"`
 	client      *Client     `json:"-"`
 }
 
@@ -102,19 +101,23 @@ func (a *Agent) GetMe(ctx context.Context) (*Agent, error) {
 //
 // @param ctx context.Context - The context for the request.
 // @param opts *options.ListAgentSessionsOptions - Options for filtering, pagination, and sorting sessions.
-// @return []Session - A slice of Session objects representing the retrieved sessions.
+// @return []*Session - A slice of Session objects representing the retrieved sessions.
 // @return error - An error if the request fails.
-func (a *Agent) ListSessions(ctx context.Context, opts *options.ListAgentSessionsOptions) ([]Session, error) {
+func (a *Agent) ListSessions(ctx context.Context, opts *options.ListAgentSessionsOptions) ([]*Session, error) {
 	path := "/agents/:agent_id/sessions"
 	opts = options.DefaultListAgentSessionsOptions().Merge(opts)
 	opts.SetAgentID(a.ID)
 	params := opts.Parameters()
 
-	result := []Session{}
+	result := []*Session{}
 
 	err := a.client.do(ctx, http.MethodGet, path, &result, params...)
 	if err != nil {
 		return nil, err
+	}
+
+	for i := range result {
+		result[i].client = a.client
 	}
 
 	return result, nil
@@ -134,48 +137,18 @@ func (a *Agent) CreateSession(ctx context.Context, opts *options.CreateAgentSess
 		parameters.NewQueryParameter("user_id", opts.UserID),
 	}
 
-	var result Session
-
-	err := a.client.do(ctx, http.MethodPost, path, &result, params...)
-	if err != nil {
-		return nil, err
-	}
-
-	a.sessionID = result.ID
-
-	return &result, nil
-}
-
-// SetSessionID sets the session ID for the agent.
-//
-// @param sessionID The session ID to be set for the agent.
-func (a *Agent) SetSessionID(sessionID string) {
-	a.sessionID = sessionID
-}
-
-// Completions generates completions for the given prompt using the agent's model.
-//
-// @param ctx context.Context - The context for the request.
-// @param opts *options.CompletionsOptions - The options for the completions request.
-func (a *Agent) Completions(ctx context.Context, opts *options.AgentCompletionsOptions) (*Completions, error) {
-	path := "/agents/:agent_id/completions"
-	opts = options.DefaultAgentCompletionsOptions().Merge(opts)
-	opts.SetAgentID(a.ID)
-
-	if a.sessionID != "" {
-		opts.SetSessionID(a.sessionID)
-	}
-
-	params := opts.Parameters()
-
-	result := new(Completions)
+	result := new(Session)
 
 	err := a.client.do(ctx, http.MethodPost, path, result, params...)
 	if err != nil {
 		return nil, err
 	}
 
-	a.sessionID = result.SessionID
+	result.client = a.client
 
 	return result, nil
+}
+
+func (a *Agent) DeleteSessions(ctx context.Context, sessionID []string) error {
+	return deleteAgentSessions(ctx, a.client, a.ID, sessionID)
 }

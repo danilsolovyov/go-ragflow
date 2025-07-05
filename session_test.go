@@ -37,7 +37,7 @@ func TestSession_Completions_Integration(t *testing.T) {
 	sess.SetClient(client)
 	ctx := t.Context()
 
-	comp, err := sess.Completions(&ctx, &options.CompletionsOptions{Question: "Hi"})
+	comp, err := sess.Completions(ctx, &options.CompletionsOptions{Question: "Hi"})
 	require.NoError(t, err)
 	assert.Equal(t, "Hello, world!", comp.Answer)
 }

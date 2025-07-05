@@ -34,7 +34,7 @@ func (s *Session) SetClient(client *Client) {
 }
 
 // Completions generates completions for the given prompt using the session's context.
-func (s *Session) Completions(ctx *context.Context, opts *options.CompletionsOptions) (*Completions, error) {
+func (s *Session) Completions(ctx context.Context, opts *options.CompletionsOptions) (*Completions, error) {
 	if opts == nil {
 		return nil, ErrOptionsRequired
 	}
@@ -55,7 +55,7 @@ func (s *Session) Completions(ctx *context.Context, opts *options.CompletionsOpt
 		return nil, ErrNotImplementedYet
 	}
 
-	return s.agentCompletions(*ctx, opts)
+	return s.agentCompletions(ctx, opts)
 }
 
 // agentCompletions generates completions for the given prompt using the agent's model.
